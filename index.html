@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои скидочные карты</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 15px;
+            padding-bottom: 70px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            background-color: #4a6bdf;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        .card-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        .card-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .card-info {
+            padding: 12px;
+        }
+
+        .card-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: white;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .btn-delete {
+            background-color: #ff5252;
+            color: white;
+        }
+
+        .btn-update {
+            background-color: #4a6bdf;
+            color: white;
+        }
+
+        .btn-view {
+            background-color: #66bb6a;
+            color: white;
+        }
+
+        .add-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #4a6bdf;
+            color: white;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            background-color: #aaa;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-confirm {
+            background-color: #4a6bdf;
+            color: white;
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+
+        /* Полноэкранный просмотр изображения */
+        .image-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .image-viewer img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+
+        .image-viewer-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-viewer-caption {
+            color: white;
+            margin-top: 15px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        /* Анимации */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .zoom-in {
+            animation: zoomIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Адаптивность */
+        @media (min-width: 768px) {
+            .card-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .card-list {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Мои скидочные карты</h1>
+    </header>
+
+    <div class="card-list" id="cardList">
+        <div class="empty-state" id="emptyState">
+            <p>У вас пока нет добавленных карт</p>
+            <p>Нажмите + чтобы добавить первую карту</p>
+        </div>
+    </div>
+
+    <button class="add-button" id="addButton">+</button>
+
+    <!-- Модальное окно для добавления/редактирования -->
+    <div class="modal" id="modal">
+        <div class="modal-content zoom-in">
+            <h2 class="modal-title" id="modalTitle">Добавить карту</h2>
+            <div class="input-group">
+                <label for="cardName">Название карты</label>
+                <input type="text" id="cardName" placeholder="Введите название">
+            </div>
+            <div class="input-group">
+                <label for="cardImage">Изображение карты</label>
+                <input type="file" id="cardImage" accept="image/*">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="cancelButton">Отмена</button>
+                <button class="btn btn-confirm" id="confirmButton">Добавить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Просмотр изображения в полноэкранном режиме -->
+    <div class="image-viewer" id="imageViewer">
+        <button class="image-viewer-close" id="closeImageViewer">×</button>
+        <img id="fullscreenImage" src="" alt="">
+        <div class="image-viewer-caption" id="imageCaption"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы DOM
+            const cardList = document.getElementById('cardList');
+            const emptyState = document.getElementById('emptyState');
+            const addButton = document.getElementById('addButton');
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const cardName = document.getElementById('cardName');
+            const cardImage = document.getElementById('cardImage');
+            const cancelButton = document.getElementById('cancelButton');
+            const confirmButton = document.getElementById('confirmButton');
+            const imageViewer = document.getElementById('imageViewer');
+            const fullscreenImage = document.getElementById('fullscreenImage');
+            const imageCaption = document.getElementById('imageCaption');
+            const closeImageViewer = document.getElementById('closeImageViewer');
+
+            // Переменные состояния
+            let cards = JSON.parse(localStorage.getItem('discountCards')) || [];
+            let currentCardId = null;
+            let isEditMode = false;
+
+            // Инициализация приложения
+            renderCards();
+            updateEmptyState();
+
+            // Обработчики событий
+            addButton.addEventListener('click', openAddModal);
+            cancelButton.addEventListener('click', closeModal);
+            confirmButton.addEventListener('click', handleConfirm);
+            closeImageViewer.addEventListener('click', closeImageViewerHandler);
+
+            // Закрытие модальных окон по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+
+            imageViewer.addEventListener('click', function(e) {
+                if (e.target === imageViewer) closeImageViewerHandler();
+            });
+
+            // Закрытие по ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (modal.style.display === 'flex') closeModal();
+                    if (imageViewer.style.display === 'flex') closeImageViewerHandler();
+                }
+            });
+
+            // Функции
+            function renderCards() {
+                cardList.innerHTML = '';
+
+                if (cards.length === 0) {
+                    cardList.appendChild(emptyState);
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                emptyState.style.display = 'none';
+
+                cards.forEach(card => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card';
+                    cardElement.innerHTML = `
+                        <div class="card-image" data-id="${card.id}">
+                            <img src="${card.image}" alt="${card.name}">
+                        </div>
+                        <div class="card-info">
+                            <div class="card-name">${card.name}</div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-view" data-id="${card.id}">Просмотр</button>
+                            <button class="btn btn-update" data-id="${card.id}">Изменить</button>
+                            <button class="btn btn-delete" data-id="${card.id}">Удалить</button>
+                        </div>
+                    `;
+                    cardList.appendChild(cardElement);
+                });
+
+                // Добавляем обработчики для кнопок
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        deleteCard(id);
+                    });
+                });
+
+                document.querySelectorAll('.btn-update').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        openEditModal(id);
+                    });
+                });
+
+                document.querySelectorAll('.btn-view').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        openImageViewer(id);
+                    });
+                });
+
+                document.querySelectorAll('.card-image').forEach(div => {
+                    div.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        openImageViewer(id);
+                    });
+                });
+            }
+
+            function updateEmptyState() {
+                emptyState.style.display = cards.length === 0 ? 'block' : 'none';
+            }
+
+            function openAddModal() {
+                isEditMode = false;
+                modalTitle.textContent = 'Добавить карту';
+                cardName.value = '';
+                cardImage.value = '';
+                confirmButton.textContent = 'Добавить';
+                modal.style.display = 'flex';
+            }
+
+            function openEditModal(id) {
+                const card = cards.find(c => c.id === id);
+                if (card) {
+                    isEditMode = true;
+                    currentCardId = id;
+                    modalTitle.textContent = 'Изменить карту';
+                    cardName.value = card.name;
+                    cardImage.value = '';
+                    confirmButton.textContent = 'Сохранить';
+                    modal.style.display = 'flex';
+                }
+            }
+
+            function openImageViewer(id) {
+                const card = cards.find(c => c.id === id);
+                if (card) {
+                    fullscreenImage.src = card.image;
+                    imageCaption.textContent = card.name;
+                    imageViewer.style.display = 'flex';
+                    // Блокируем прокрутку фона
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeImageViewerHandler() {
+                imageViewer.style.display = 'none';
+                // Разблокируем прокрутку фона
+                document.body.style.overflow = 'auto';
+            }
+
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+
+            function handleConfirm() {
+                const name = cardName.value.trim();
+                const file = cardImage.files[0];
+
+                if (!name) {
+                    alert('Пожалуйста, введите название карты');
+                    return;
+                }
+
+                if (!isEditMode && !file) {
+                    alert('Пожалуйста, выберите изображение карты');
+                    return;
+                }
+
+                if (isEditMode) {
+                    if (file) {
+                        updateCardWithImage(name, file);
+                    } else {
+                        updateCardName(name);
+                    }
+                } else {
+                    addNewCard(name, file);
+                }
+            }
+
+            function addNewCard(name, file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newCard = {
+                        id: Date.now().toString(),
+                        name: name,
+                        image: e.target.result
+                    };
+
+                    cards.push(newCard);
+                    saveCards();
+                    renderCards();
+                    closeModal();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function updateCardWithImage(name, file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const cardIndex = cards.findIndex(c => c.id === currentCardId);
+                    if (cardIndex !== -1) {
+                        cards[cardIndex].name = name;
+                        cards[cardIndex].image = e.target.result;
+                        saveCards();
+                        renderCards();
+                        closeModal();
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function updateCardName(name) {
+                const cardIndex = cards.findIndex(c => c.id === currentCardId);
+                if (cardIndex !== -1) {
+                    cards[cardIndex].name = name;
+                    saveCards();
+                    renderCards();
+                    closeModal();
+                }
+            }
+
+            function deleteCard(id) {
+                if (confirm('Вы уверены, что хотите удалить эту карту?')) {
+                    cards = cards.filter(c => c.id !== id);
+                    saveCards();
+                    renderCards();
+                    updateEmptyState();
+                }
+            }
+
+            function saveCards() {
+                localStorage.setItem('discountCards', JSON.stringify(cards));
+            }
+        });
+    </script>
+</body>
+</html>
