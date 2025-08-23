@@ -6,8 +6,6 @@
     <title>Мои скидочные карты</title>
     <meta name="theme-color" content="#4a6bdf">
     <meta name="description" content="Приложение для хранения скидочных карт, работает оффлайн">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎫</text></svg>">
     <style>
         * {
             margin: 0;
@@ -290,10 +288,26 @@
                 grid-template-columns: repeat(3, 1fr);
             }
         }
+        
+        /* Индикатор установки PWA */
+        .install-prompt {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background-color: #4a6bdf;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="offline-status" id="offlineStatus">Оффлайн режим</div>
+    <div class="install-prompt" id="installPrompt">Установить приложение</div>
     
     <header>
         <h1>Мои скидочные карты</h1>
@@ -335,17 +349,11 @@
     </div>
 
     <script>
-        // Service Worker регистрация
+        // Простой Service Worker для оффлайн работы
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(function(error) {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
-            });
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('SW registered for offline functionality'))
+                .catch(err => console.log('SW registration failed:', err));
         }
 
         // Проверка онлайн статуса
@@ -358,6 +366,23 @@
                 }, 3000);
             }
         }
+
+        // Prompt для установки PWA
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installPrompt.style.display = 'block';
+            
+            installPrompt.addEventListener('click', async () => {
+                installPrompt.style.display = 'none';
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+            });
+        });
 
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
