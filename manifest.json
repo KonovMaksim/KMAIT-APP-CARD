@@ -1,6 +1,6 @@
 {
   "name": "Мои скидочные карты",
-  "short_name": "Скидочные\nКарты",
+  "short_name": "МоиКарты",
   "description": "Приложение для хранения скидочных карт",
   "start_url": "./",
   "display": "standalone",
