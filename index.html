@@ -5,282 +5,239 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои скидочные карты</title>
     <meta name="theme-color" content="#4a6bdf">
-    <meta name="description" content="Управляйте своими скидочными картами - оффлайн приложение">
+    <meta name="description" content="Приложение для хранения скидочных карт">
     
-    <!-- Критически важные PWA мета-теги -->
+    <!-- PWA мета-теги -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Скидочные карты">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Скидочные карты">
     
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎫</text></svg>">
-    
+    <link rel="manifest" href="manifest.json">
     <style>
-        :root {
-            --primary-color: #4a6bdf;
-            --secondary-color: #ff6b6b;
-            --success-color: #66bb6a;
-            --background-color: #f5f5f5;
-            --card-color: #ffffff;
-            --text-color: #333333;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         body {
-            background-color: var(--background-color);
-            color: var(--text-color);
+            background-color: #f5f5f5;
+            color: #333;
             padding: 15px;
             padding-bottom: 80px;
             min-height: 100vh;
-            /* Важно для standalone режима */
-            height: 100vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
         }
         
-        /* Стили остаются такими же как в предыдущей версии */
-        .app-header {
+        header {
             text-align: center;
             margin-bottom: 20px;
-            padding: 20px 0;
-            background: linear-gradient(135deg, var(--primary-color), #6a8eff);
+            padding: 15px 0;
+            background-color: #4a6bdf;
             color: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(74, 107, 223, 0.3);
+            border-radius: 10px;
         }
         
-        .app-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 5px;
+        h1 {
+            font-size: 1.5rem;
         }
         
-        .app-subtitle {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .cards-grid {
+        .card-list {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        @media (min-width: 768px) {
-            .cards-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            gap: 15px;
         }
         
         .card {
-            background: var(--card-color);
-            border-radius: 15px;
+            background: white;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .card:active {
-            transform: scale(0.98);
-        }
-        
-        .card-image-container {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .card-image {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            transition: transform 0.2s ease;
+            width: 100%;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f0f0;
+            cursor: pointer;
         }
         
-        .card-content {
-            padding: 15px;
+        .card-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .card-info {
+            padding: 12px;
         }
         
         .card-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: var(--text-color);
+            font-weight: bold;
+            margin-bottom: 5px;
         }
         
         .card-actions {
             display: flex;
-            gap: 10px;
             justify-content: space-between;
-        }
-        
-        .btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 10px;
             gap: 5px;
         }
         
-        .btn:active {
-            transform: scale(0.95);
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
         
         .btn-view {
-            background: var(--success-color);
+            background-color: #66bb6a;
             color: white;
         }
         
         .btn-edit {
-            background: var(--primary-color);
+            background-color: #4a6bdf;
             color: white;
         }
         
         .btn-delete {
-            background: var(--secondary-color);
+            background-color: #ff5252;
             color: white;
         }
         
-        .fab {
+        .add-button {
             position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: 65px;
-            height: 65px;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #6a8eff);
+            background-color: #4a6bdf;
             color: white;
             font-size: 2rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 6px 20px rgba(74, 107, 223, 0.4);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
             border: none;
             cursor: pointer;
             z-index: 1000;
-            transition: all 0.2s ease;
         }
         
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #888;
-        }
-        
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-        
-        .empty-title {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            color: #666;
-        }
-        
-        .modal-overlay {
+        .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            backdrop-filter: blur(5px);
         }
         
-        .modal {
-            background: var(--card-color);
-            border-radius: 20px;
-            padding: 25px;
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
             width: 100%;
-            max-width: 450px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            animation: modalSlideIn 0.3s ease-out;
+            max-width: 400px;
         }
         
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(50px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        .modal-title {
+            margin-bottom: 15px;
+            text-align: center;
         }
         
-        .form-group {
-            margin-bottom: 20px;
+        .input-group {
+            margin-bottom: 15px;
         }
         
-        .form-label {
+        .input-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-color);
+            margin-bottom: 5px;
+            font-weight: bold;
         }
         
-        .form-input {
+        .input-group input {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: border-color 0.2s ease;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .camera-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .camera-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #4a6bdf;
+            border-radius: 8px;
+            background: white;
+            color: #4a6bdf;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .camera-btn.active {
+            background: #4a6bdf;
+            color: white;
+        }
+        
+        .camera-preview {
+            display: none;
+            width: 100%;
+            max-height: 200px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        
+        .capture-btn {
+            display: none;
+            width: 100%;
+            padding: 12px;
+            background: #4a6bdf;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
         }
         
         .modal-actions {
             display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-        
-        .modal-btn {
-            flex: 1;
-            padding: 15px;
-            font-size: 1rem;
-            font-weight: 600;
+            justify-content: space-between;
+            gap: 10px;
         }
         
         .btn-cancel {
-            background: #95a5a6;
+            background-color: #aaa;
             color: white;
+            flex: 1;
         }
         
         .btn-confirm {
-            background: var(--primary-color);
+            background-color: #4a6bdf;
             color: white;
+            flex: 1;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #888;
         }
         
         .image-viewer {
@@ -290,424 +247,396 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 3000;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 2000;
             align-items: center;
             justify-content: center;
             flex-direction: column;
         }
         
-        .viewer-image {
-            max-width: 95vw;
+        .image-viewer img {
+            max-width: 100%;
             max-height: 80vh;
             object-fit: contain;
-            border-radius: 10px;
         }
         
-        .viewer-caption {
-            color: white;
-            margin-top: 15px;
-            font-size: 1.1rem;
-            text-align: center;
-            padding: 0 20px;
-        }
-        
-        .viewer-close {
+        .image-viewer-close {
             position: absolute;
-            top: -40px;
-            right: 0;
+            top: 20px;
+            right: 20px;
             width: 40px;
             height: 40px;
-            background: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255,255,255,0.2);
             color: white;
             border: none;
             border-radius: 50%;
             font-size: 1.5rem;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
         }
         
-        /* Убираем браузерный UI в standalone режиме */
-        @media all and (display-mode: standalone) {
-            body {
-                padding-top: env(safe-area-inset-top);
-                padding-bottom: calc(80px + env(safe-area-inset-bottom));
-            }
-            
-            .fab {
-                bottom: calc(25px + env(safe-area-inset-bottom));
-            }
-        }
-        
-        /* Инструкция по установке */
-        .install-guide {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 5000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
+        .image-viewer-caption {
             color: white;
+            margin-top: 15px;
             text-align: center;
-            padding: 20px;
-        }
-        
-        .install-guide-content {
-            max-width: 400px;
-        }
-        
-        .install-guide h2 {
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-        
-        .install-steps {
-            text-align: left;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        
-        .install-steps li {
-            margin-bottom: 15px;
+            padding: 0 20px;
         }
     </style>
 </head>
 <body>
-    <!-- App Header -->
-    <header class="app-header">
-        <h1 class="app-title">Мои скидочные карты</h1>
-        <p class="app-subtitle">Все ваши карты всегда под рукой</p>
+    <header>
+        <h1>Мои скидочные карты</h1>
     </header>
-
-    <!-- Cards Grid -->
-    <div class="cards-grid" id="cardsGrid">
+    
+    <div class="card-list" id="cardList">
         <div class="empty-state" id="emptyState">
-            <div class="empty-icon">🎫</div>
-            <h2 class="empty-title">Нет карт</h2>
-            <p class="empty-text">Добавьте свою первую скидочную карту, нажав на кнопку ниже</p>
+            <p>У вас пока нет добавленных карт</p>
+            <p>Нажмите + чтобы добавить первую карту</p>
         </div>
     </div>
-
-    <!-- Floating Action Button -->
-    <button class="fab" id="addButton" aria-label="Добавить карту">
-        +
-    </button>
-
-    <!-- Add/Edit Modal -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">Добавить карту</h2>
+    
+    <button class="add-button" id="addButton">+</button>
+    
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle">Добавить карту</h2>
+            
+            <div class="input-group">
+                <label for="cardName">Название карты</label>
+                <input type="text" id="cardName" placeholder="Введите название">
             </div>
             
-            <div class="form-group">
-                <label for="cardName" class="form-label">Название карты</label>
-                <input type="text" id="cardName" class="form-input" placeholder="Например: Магнит, Пятерочка" required>
+            <div class="camera-options">
+                <button class="camera-btn active" data-type="camera">Камера</button>
+                <button class="camera-btn" data-type="gallery">Галерея</button>
             </div>
             
-            <div class="form-group">
-                <label for="cardImage" class="form-label">Изображение карты</label>
-                <input type="file" id="cardImage" class="form-input file-input" accept="image/*" capture="environment" required>
-            </div>
+            <video class="camera-preview" id="cameraPreview" autoplay playsinline></video>
+            <img class="camera-preview" id="imagePreview" src="" alt="Preview">
+            
+            <button class="capture-btn" id="captureBtn">Сфотографировать</button>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
             
             <div class="modal-actions">
-                <button class="btn modal-btn btn-cancel" id="cancelButton">Отмена</button>
-                <button class="btn modal-btn btn-confirm" id="confirmButton">Добавить</button>
+                <button class="btn btn-cancel" id="cancelButton">Отмена</button>
+                <button class="btn btn-confirm" id="confirmButton">Добавить</button>
             </div>
         </div>
     </div>
-
-    <!-- Image Viewer -->
+    
     <div class="image-viewer" id="imageViewer">
-        <div class="viewer-content">
-            <button class="viewer-close" id="closeViewer">×</button>
-            <img id="viewerImage" class="viewer-image" src="" alt="">
-            <div class="viewer-caption" id="viewerCaption"></div>
-        </div>
-    </div>
-
-    <!-- Инструкция по установке -->
-    <div class="install-guide" id="installGuide">
-        <div class="install-guide-content">
-            <h2>📱 Как открыть как приложение</h2>
-            <ol class="install-steps">
-                <li>В браузере нажмите "Поделиться"</li>
-                <li>Выберите "На экран «Домой»"</li>
-                <li>Добавьте на главный экран</li>
-                <li>Теперь открывайте через иконку приложения!</li>
-            </ol>
-            <button class="btn btn-confirm" onclick="document.getElementById('installGuide').style.display = 'none'">
-                Понятно
-            </button>
-        </div>
+        <button class="image-viewer-close" id="closeImageViewer">×</button>
+        <img id="fullscreenImage" src="" alt="">
+        <div class="image-viewer-caption" id="imageCaption"></div>
     </div>
 
     <script>
-        // ===== PWA ДЕТЕКТИРОВАНИЕ РЕЖИМА =====
-        function isRunningInStandaloneMode() {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.navigator.standalone === true;
-        }
-        
-        function showInstallGuide() {
-            // Показываем инструкцию только если не в standalone режиме
-            // и если пользователь еще не скрыл ее
-            if (!isRunningInStandaloneMode() && !localStorage.getItem('installGuideDismissed')) {
-                setTimeout(() => {
-                    document.getElementById('installGuide').style.display = 'flex';
-                }, 2000);
-            }
-        }
-        
-        // Проверяем режим при загрузке
         document.addEventListener('DOMContentLoaded', function() {
-            if (isRunningInStandaloneMode()) {
-                console.log('Приложение запущено в standalone режиме');
-                document.body.classList.add('standalone-mode');
-            } else {
-                console.log('Приложение запущено в браузере');
-                showInstallGuide();
-            }
+            // Элементы DOM
+            const cardList = document.getElementById('cardList');
+            const emptyState = document.getElementById('emptyState');
+            const addButton = document.getElementById('addButton');
+            const modal = document.getElementById('modal');
+            const cardName = document.getElementById('cardName');
+            const cameraOptions = document.querySelectorAll('.camera-btn');
+            const cameraPreview = document.getElementById('cameraPreview');
+            const imagePreview = document.getElementById('imagePreview');
+            const captureBtn = document.getElementById('captureBtn');
+            const fileInput = document.getElementById('fileInput');
+            const cancelButton = document.getElementById('cancelButton');
+            const confirmButton = document.getElementById('confirmButton');
+            const imageViewer = document.getElementById('imageViewer');
+            const fullscreenImage = document.getElementById('fullscreenImage');
+            const imageCaption = document.getElementById('imageCaption');
+            const closeImageViewer = document.getElementById('closeImageViewer');
             
-            // Сохраняем, что пользователь скрыл инструкцию
-            document.querySelector('.install-guide-content button').addEventListener('click', function() {
-                localStorage.setItem('installGuideDismissed', 'true');
+            // Переменные состояния
+            let cards = JSON.parse(localStorage.getItem('discountCards')) || [];
+            let currentCardId = null;
+            let isEditMode = false;
+            let currentStream = null;
+            let selectedImageData = null;
+            let currentMode = 'camera';
+            
+            // Инициализация
+            renderCards();
+            updateEmptyState();
+            
+            // Обработчики событий
+            addButton.addEventListener('click', openAddModal);
+            cancelButton.addEventListener('click', closeModal);
+            confirmButton.addEventListener('click', handleConfirm);
+            closeImageViewer.addEventListener('click', closeImageViewerHandler);
+            
+            cameraOptions.forEach(btn => {
+                btn.addEventListener('click', () => switchMode(btn.dataset.type));
             });
-        });
-        
-        // ===== ОСНОВНАЯ ЛОГИКА ПРИЛОЖЕНИЯ =====
-        class DiscountCardsApp {
-            constructor() {
-                this.cards = JSON.parse(localStorage.getItem('discountCards')) || [];
-                this.currentCardId = null;
-                this.isEditMode = false;
-                
-                this.initializeElements();
-                this.bindEvents();
-                this.renderCards();
-            }
             
-            initializeElements() {
-                this.elements = {
-                    cardsGrid: document.getElementById('cardsGrid'),
-                    emptyState: document.getElementById('emptyState'),
-                    addButton: document.getElementById('addButton'),
-                    modalOverlay: document.getElementById('modalOverlay'),
-                    modalTitle: document.getElementById('modalTitle'),
-                    cardName: document.getElementById('cardName'),
-                    cardImage: document.getElementById('cardImage'),
-                    cancelButton: document.getElementById('cancelButton'),
-                    confirmButton: document.getElementById('confirmButton'),
-                    imageViewer: document.getElementById('imageViewer'),
-                    viewerImage: document.getElementById('viewerImage'),
-                    viewerCaption: document.getElementById('viewerCaption'),
-                    closeViewer: document.getElementById('closeViewer')
-                };
-            }
+            captureBtn.addEventListener('click', capturePhoto);
+            fileInput.addEventListener('change', handleFileSelect);
             
-            bindEvents() {
-                this.elements.addButton.addEventListener('click', () => this.openAddModal());
-                this.elements.cancelButton.addEventListener('click', () => this.closeModal());
-                this.elements.confirmButton.addEventListener('click', () => this.handleConfirm());
-                this.elements.closeViewer.addEventListener('click', () => this.closeImageViewer());
-                
-                this.elements.modalOverlay.addEventListener('click', (e) => {
-                    if (e.target === this.elements.modalOverlay) this.closeModal();
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+            
+            imageViewer.addEventListener('click', function(e) {
+                if (e.target === imageViewer) closeImageViewerHandler();
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (modal.style.display === 'flex') closeModal();
+                    if (imageViewer.style.display === 'flex') closeImageViewerHandler();
+                }
+            });
+            
+            // Функции
+            function switchMode(mode) {
+                currentMode = mode;
+                cameraOptions.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.type === mode);
                 });
                 
-                this.elements.imageViewer.addEventListener('click', (e) => {
-                    if (e.target === this.elements.imageViewer) this.closeImageViewer();
-                });
-                
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        if (this.elements.modalOverlay.style.display === 'flex') this.closeModal();
-                        if (this.elements.imageViewer.style.display === 'flex') this.closeImageViewer();
-                    }
-                });
+                if (mode === 'camera') {
+                    fileInput.style.display = 'none';
+                    captureBtn.style.display = 'block';
+                    imagePreview.style.display = 'none';
+                    cameraPreview.style.display = 'block';
+                    startCamera();
+                } else {
+                    stopCamera();
+                    fileInput.style.display = 'block';
+                    captureBtn.style.display = 'none';
+                    cameraPreview.style.display = 'none';
+                    imagePreview.style.display = 'block';
+                    fileInput.click();
+                }
             }
             
-            renderCards() {
-                this.elements.cardsGrid.innerHTML = '';
+            async function startCamera() {
+                try {
+                    stopCamera();
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: 'environment' },
+                        audio: false 
+                    });
+                    currentStream = stream;
+                    cameraPreview.srcObject = stream;
+                } catch (error) {
+                    console.error('Ошибка камеры:', error);
+                    switchMode('gallery');
+                }
+            }
+            
+            function stopCamera() {
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                    currentStream = null;
+                }
+            }
+            
+            function capturePhoto() {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = cameraPreview.videoWidth;
+                canvas.height = cameraPreview.videoHeight;
+                context.drawImage(cameraPreview, 0, 0);
                 
-                if (this.cards.length === 0) {
-                    this.elements.cardsGrid.appendChild(this.elements.emptyState);
-                    this.elements.emptyState.style.display = 'block';
+                selectedImageData = canvas.toDataURL('image/png');
+                imagePreview.src = selectedImageData;
+                imagePreview.style.display = 'block';
+                cameraPreview.style.display = 'none';
+                
+                stopCamera();
+            }
+            
+            function handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        selectedImageData = event.target.result;
+                        imagePreview.src = selectedImageData;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            function renderCards() {
+                cardList.innerHTML = '';
+                
+                if (cards.length === 0) {
+                    cardList.appendChild(emptyState);
+                    emptyState.style.display = 'block';
                     return;
                 }
                 
-                this.elements.emptyState.style.display = 'none';
+                emptyState.style.display = 'none';
                 
-                this.cards.forEach(card => {
-                    const cardElement = this.createCardElement(card);
-                    this.elements.cardsGrid.appendChild(cardElement);
+                cards.forEach(card => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card';
+                    cardElement.innerHTML = `
+                        <div class="card-image" data-id="${card.id}">
+                            <img src="${card.image}" alt="${card.name}">
+                        </div>
+                        <div class="card-info">
+                            <div class="card-name">${card.name}</div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-view" data-id="${card.id}">Просмотр</button>
+                            <button class="btn btn-edit" data-id="${card.id}">Изменить</button>
+                            <button class="btn btn-delete" data-id="${card.id}">Удалить</button>
+                        </div>
+                    `;
+                    cardList.appendChild(cardElement);
+                });
+                
+                // Обработчики для карточек
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        deleteCard(id);
+                    });
+                });
+                
+                document.querySelectorAll('.btn-edit').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        openEditModal(id);
+                    });
+                });
+                
+                document.querySelectorAll('.btn-view').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        openImageViewer(id);
+                    });
+                });
+                
+                document.querySelectorAll('.card-image').forEach(div => {
+                    div.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        openImageViewer(id);
+                    });
                 });
             }
             
-            createCardElement(card) {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'card';
-                cardEl.innerHTML = `
-                    <div class="card-image-container" data-id="${card.id}">
-                        <img src="${card.image}" alt="${card.name}" class="card-image">
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-name">${card.name}</h3>
-                        <div class="card-actions">
-                            <button class="btn btn-view" data-id="${card.id}">
-                                👁️ Просмотр
-                            </button>
-                            <button class="btn btn-edit" data-id="${card.id}">
-                                ✏️ Изменить
-                            </button>
-                            <button class="btn btn-delete" data-id="${card.id}">
-                                🗑️ Удалить
-                            </button>
-                        </div>
-                    </div>
-                `;
-                
-                const imageContainer = cardEl.querySelector('.card-image-container');
-                const viewBtn = cardEl.querySelector('.btn-view');
-                const editBtn = cardEl.querySelector('.btn-edit');
-                const deleteBtn = cardEl.querySelector('.btn-delete');
-                
-                imageContainer.addEventListener('click', () => this.openImageViewer(card.id));
-                viewBtn.addEventListener('click', () => this.openImageViewer(card.id));
-                editBtn.addEventListener('click', () => this.openEditModal(card.id));
-                deleteBtn.addEventListener('click', () => this.deleteCard(card.id));
-                
-                return cardEl;
+            function updateEmptyState() {
+                emptyState.style.display = cards.length === 0 ? 'block' : 'none';
             }
             
-            openAddModal() {
-                this.isEditMode = false;
-                this.currentCardId = null;
-                this.elements.modalTitle.textContent = 'Добавить карту';
-                this.elements.cardName.value = '';
-                this.elements.cardImage.value = '';
-                this.elements.confirmButton.textContent = 'Добавить';
-                this.elements.modalOverlay.style.display = 'flex';
+            function openAddModal() {
+                isEditMode = false;
+                currentCardId = null;
+                selectedImageData = null;
+                cardName.value = '';
+                imagePreview.src = '';
+                imagePreview.style.display = 'none';
+                fileInput.value = '';
+                switchMode('camera');
+                modal.style.display = 'flex';
             }
             
-            openEditModal(cardId) {
-                const card = this.cards.find(c => c.id === cardId);
+            function openEditModal(id) {
+                const card = cards.find(c => c.id === id);
                 if (card) {
-                    this.isEditMode = true;
-                    this.currentCardId = cardId;
-                    this.elements.modalTitle.textContent = 'Изменить карту';
-                    this.elements.cardName.value = card.name;
-                    this.elements.cardImage.value = '';
-                    this.elements.confirmButton.textContent = 'Сохранить';
-                    this.elements.modalOverlay.style.display = 'flex';
+                    isEditMode = true;
+                    currentCardId = id;
+                    cardName.value = card.name;
+                    selectedImageData = card.image;
+                    imagePreview.src = card.image;
+                    imagePreview.style.display = 'block';
+                    cameraPreview.style.display = 'none';
+                    captureBtn.style.display = 'none';
+                    fileInput.style.display = 'none';
+                    modal.style.display = 'flex';
                 }
             }
             
-            closeModal() {
-                this.elements.modalOverlay.style.display = 'none';
+            function openImageViewer(id) {
+                const card = cards.find(c => c.id === id);
+                if (card) {
+                    fullscreenImage.src = card.image;
+                    imageCaption.textContent = card.name;
+                    imageViewer.style.display = 'flex';
+                }
             }
             
-            async handleConfirm() {
-                const name = this.elements.cardName.value.trim();
-                const file = this.elements.cardImage.files[0];
+            function closeImageViewerHandler() {
+                imageViewer.style.display = 'none';
+            }
+            
+            function closeModal() {
+                stopCamera();
+                modal.style.display = 'none';
+            }
+            
+            function handleConfirm() {
+                const name = cardName.value.trim();
                 
                 if (!name) {
                     alert('Пожалуйста, введите название карты');
                     return;
                 }
                 
-                if (!this.isEditMode && !file) {
-                    alert('Пожалуйста, выберите изображение карты');
+                if (!selectedImageData && !isEditMode) {
+                    alert('Пожалуйста, добавьте изображение карты');
                     return;
                 }
                 
-                try {
-                    if (this.isEditMode) {
-                        await this.updateCard(name, file);
-                    } else {
-                        await this.addNewCard(name, file);
-                    }
-                    this.closeModal();
-                } catch (error) {
-                    alert('Ошибка при обработке изображения');
+                if (isEditMode) {
+                    updateCard(name);
+                } else {
+                    addNewCard(name);
                 }
             }
             
-            async addNewCard(name, file) {
-                const imageData = await this.readFileAsDataURL(file);
+            function addNewCard(name) {
                 const newCard = {
                     id: Date.now().toString(),
                     name: name,
-                    image: imageData,
-                    createdAt: new Date().toISOString()
+                    image: selectedImageData
                 };
                 
-                this.cards.push(newCard);
-                this.saveCards();
-                this.renderCards();
+                cards.push(newCard);
+                saveCards();
+                renderCards();
+                closeModal();
             }
             
-            async updateCard(name, file) {
-                const cardIndex = this.cards.findIndex(c => c.id === this.currentCardId);
+            function updateCard(name) {
+                const cardIndex = cards.findIndex(c => c.id === currentCardId);
                 if (cardIndex !== -1) {
-                    this.cards[cardIndex].name = name;
-                    
-                    if (file) {
-                        this.cards[cardIndex].image = await this.readFileAsDataURL(file);
+                    cards[cardIndex].name = name;
+                    if (selectedImageData && selectedImageData !== cards[cardIndex].image) {
+                        cards[cardIndex].image = selectedImageData;
                     }
-                    
-                    this.saveCards();
-                    this.renderCards();
+                    saveCards();
+                    renderCards();
+                    closeModal();
                 }
             }
             
-            readFileAsDataURL(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = e => resolve(e.target.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
-                });
-            }
-            
-            deleteCard(cardId) {
+            function deleteCard(id) {
                 if (confirm('Вы уверены, что хотите удалить эту карту?')) {
-                    this.cards = this.cards.filter(c => c.id !== cardId);
-                    this.saveCards();
-                    this.renderCards();
+                    cards = cards.filter(c => c.id !== id);
+                    saveCards();
+                    renderCards();
+                    updateEmptyState();
                 }
             }
             
-            openImageViewer(cardId) {
-                const card = this.cards.find(c => c.id === cardId);
-                if (card) {
-                    this.elements.viewerImage.src = card.image;
-                    this.elements.viewerCaption.textContent = card.name;
-                    this.elements.imageViewer.style.display = 'flex';
-                }
+            function saveCards() {
+                localStorage.setItem('discountCards', JSON.stringify(cards));
             }
-            
-            closeImageViewer() {
-                this.elements.imageViewer.style.display = 'none';
-            }
-            
-            saveCards() {
-                localStorage.setItem('discountCards', JSON.stringify(this.cards));
-            }
-        }
-
-        // Инициализация приложения
-        document.addEventListener('DOMContentLoaded', () => {
-            window.app = new DiscountCardsApp();
         });
+
+        // Service Worker регистрация
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('SW registered'))
+                .catch(err => console.log('SW error:', err));
+        }
     </script>
 </body>
 </html>
