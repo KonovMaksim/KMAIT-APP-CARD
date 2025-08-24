@@ -6,8 +6,5 @@
   "display": "standalone",
   "background_color": "#4a6bdf",
   "theme_color": "#4a6bdf",
-  "orientation": "portrait",
-  "categories": ["business", "productivity"],
-  "lang": "ru",
-  "scope": "/"
+  "orientation": "portrait"
 }
