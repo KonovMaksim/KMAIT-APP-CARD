@@ -1,8 +1,13 @@
 {
   "name": "Мои скидочные карты",
   "short_name": "Скидочные карты",
+  "description": "Приложение для хранения скидочных карт",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#4a6bdf",
-  "theme_color": "#4a6bdf"
+  "theme_color": "#4a6bdf",
+  "orientation": "portrait",
+  "categories": ["business", "productivity"],
+  "lang": "ru",
+  "scope": "/"
 }
