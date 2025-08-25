@@ -93,6 +93,59 @@
             position: relative;
         }
 
+        /* Search */
+        .search-container {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 50px 16px 16px;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .clear-search:hover {
+            color: var(--text-primary);
+        }
+
         /* Cards grid */
         .cards-grid {
             display: grid;
@@ -320,6 +373,13 @@
             font-size: 1rem;
             line-height: 1.6;
             opacity: 0.8;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            display: none;
         }
 
         /* Modals */
@@ -663,7 +723,15 @@
     <!-- App Header -->
     <header class="app-header">
         <h1 class="app-title">Мои скидочные карты</h1>
+        <p class="app-subtitle">Все ваши карты всегда под рукой</p>
     </header>
+
+    <!-- Search -->
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию...">
+        <div class="search-icon">🔍</div>
+        <button class="clear-search" id="clearSearch">×</button>
+    </div>
 
     <!-- Cards Grid -->
     <div class="cards-grid" id="cardsGrid">
@@ -671,6 +739,13 @@
             <h2 class="empty-title">Нет карт</h2>
             <p class="empty-text">Добавьте свою первую скидочную карту</p>
         </div>
+    </div>
+
+    <!-- No Results -->
+    <div class="no-results" id="noResults">
+        <div class="empty-icon">🔍</div>
+        <h2 class="empty-title">Ничего не найдено</h2>
+        <p class="empty-text">Попробуйте изменить поисковый запрос</p>
     </div>
 
     <!-- Floating Action Button -->
@@ -722,6 +797,9 @@
             // Элементы DOM
             const cardList = document.getElementById('cardsGrid');
             const emptyState = document.getElementById('emptyState');
+            const noResults = document.getElementById('noResults');
+            const searchInput = document.getElementById('searchInput');
+            const clearSearch = document.getElementById('clearSearch');
             const addButton = document.getElementById('addButton');
             const modalOverlay = document.getElementById('modalOverlay');
             const modalTitle = document.getElementById('modalTitle');
@@ -747,6 +825,7 @@
             let currentStream = null;
             let selectedImageData = null;
             let currentMode = 'camera';
+            let searchQuery = '';
             
             // Инициализация
             renderCards();
@@ -760,6 +839,8 @@
             closeViewer.addEventListener('click', closeImageViewer);
             captureBtn.addEventListener('click', capturePhoto);
             fileInput.addEventListener('change', handleFileSelect);
+            searchInput.addEventListener('input', handleSearch);
+            clearSearch.addEventListener('click', clearSearchHandler);
             
             cameraOptions.forEach(btn => {
                 btn.addEventListener('click', () => switchMode(btn.dataset.type));
@@ -790,7 +871,28 @@
                     .catch(err => console.log('SW error:', err));
             }
             
-            // Функции
+            // Функции поиска
+            function handleSearch(e) {
+                searchQuery = e.target.value.toLowerCase().trim();
+                clearSearch.style.display = searchQuery ? 'block' : 'none';
+                renderCards();
+            }
+            
+            function clearSearchHandler() {
+                searchInput.value = '';
+                searchQuery = '';
+                clearSearch.style.display = 'none';
+                renderCards();
+            }
+            
+            function filterCards() {
+                if (!searchQuery) return cards;
+                
+                return cards.filter(card => 
+                    card.name.toLowerCase().includes(searchQuery)
+                );
+            }
+            
             function switchMode(mode) {
                 currentMode = mode;
                 cameraOptions.forEach(btn => {
@@ -864,16 +966,24 @@
             
             function renderCards() {
                 cardList.innerHTML = '';
+                const filteredCards = filterCards();
                 
                 if (cards.length === 0) {
-                    cardList.appendChild(emptyState);
                     emptyState.style.display = 'block';
+                    noResults.style.display = 'none';
+                    return;
+                }
+                
+                if (filteredCards.length === 0) {
+                    emptyState.style.display = 'none';
+                    noResults.style.display = 'block';
                     return;
                 }
                 
                 emptyState.style.display = 'none';
+                noResults.style.display = 'none';
                 
-                cards.forEach(card => {
+                filteredCards.forEach(card => {
                     const cardElement = document.createElement('div');
                     cardElement.className = 'card';
                     cardElement.innerHTML = `
@@ -883,9 +993,9 @@
                         <div class="card-content">
                             <div class="card-name">${card.name}</div>
                             <div class="card-actions">
-                                <button class="btn btn-view" data-id="${card.id}">👁️ Просмотр</button>
-                                <button class="btn btn-edit" data-id="${card.id}">✏️ Изменить</button>
-                                <button class="btn btn-delete" data-id="${card.id}">🗑️ Удалить</button>
+                                <button class="btn btn-view" data-id="${card.id}">Просмотр</button>
+                                <button class="btn btn-edit" data-id="${card.id}">Изменить</button>
+                                <button class="btn btn-delete" data-id="${card.id}">Удалить</button>
                             </div>
                         </div>
                     `;
@@ -923,7 +1033,17 @@
             }
             
             function updateEmptyState() {
-                emptyState.style.display = cards.length === 0 ? 'block' : 'none';
+                const filteredCards = filterCards();
+                if (cards.length === 0) {
+                    emptyState.style.display = 'block';
+                    noResults.style.display = 'none';
+                } else if (filteredCards.length === 0) {
+                    emptyState.style.display = 'none';
+                    noResults.style.display = 'block';
+                } else {
+                    emptyState.style.display = 'none';
+                    noResults.style.display = 'none';
+                }
             }
             
             function updateNetworkStatus() {
